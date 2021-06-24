@@ -36,7 +36,7 @@
                 confirmText: "Download Now",
                 cancelText: "Cancel",
                 onConfirm: () => {
-                    require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
+                    require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, _response, body) => {
                         if (error) return require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
                         await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
                     });
@@ -49,7 +49,7 @@
         stop() { }
     } : (([Plugin, Library]) => {
 
-        const { Patcher, Toasts, WebpackModules, DiscordContextMenu, ContextMenu, DCM } = Library;
+        const { Patcher, Toasts, WebpackModules, DCM } = Library;
 
         const { React } = BdApi
         return class Hastebin extends Plugin {
@@ -76,7 +76,7 @@
                                 require("request").post({
                                     url:     'https://hastebin.com/documents',
                                     body:    message.content
-                                }, (error, response, body) => {
+                                }, (error, _response, body) => {
                                     let data = JSON.parse(body)
                                     if (error || !data.key) return Toasts.error("There was an issue getting the Hastebin link from the message content")
                                     BdApi.alert("Result", "https://hastebin.com/"+data.key)
