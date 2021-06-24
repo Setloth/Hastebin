@@ -79,7 +79,7 @@
                                 }, (error, _response, body) => {
                                     let data = JSON.parse(body)
                                     if (error || !data.key) return Toasts.error("There was an issue getting the Hastebin link from the message content")
-                                    BdApi.alert("Result", "https://hastebin.com/"+data.key)
+                                    BdApi.alert("Hastebin Link", "https://hastebin.com/"+data.key)
                                 });
                                 
                             }
