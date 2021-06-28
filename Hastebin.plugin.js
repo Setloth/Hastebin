@@ -4,6 +4,11 @@
  * @version 1.0.0
  */
 
+    const request = require("request")
+    const electron = require("electron")
+    const fs = require("fs")
+    const path = require("path")
+
     const config = {
         info: {
             name: "Hastebin",
@@ -36,9 +41,9 @@
                 confirmText: "Download Now",
                 cancelText: "Cancel",
                 onConfirm: () => {
-                    require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, _response, body) => {
-                        if (error) return require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
-                        await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
+                    request.get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, _response, body) => {
+                        if (error) return electron.shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
+                        await new Promise(r => fs.writeFile(path.join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
                     });
                 }
             });
@@ -73,7 +78,7 @@
                             label: "Create Hastebin",
                             type: "text",
                             action: () => {
-                                require("request").post({
+                                request.post({
                                     url:     'https://hastebin.com/documents',
                                     body:    message.content
                                 }, (error, _response, body) => {
