@@ -1,7 +1,7 @@
 /**
  * @name Hastebin
  * @author CT-1409
- * @version 1.0.0
+ * @version 1.0.1
  */
 
     const request = require("request")
@@ -18,13 +18,12 @@
                     discord_id: "272875632088842240",
                 }
             ],
-            version: "1.0.0",
+            version: "1.0.1",
             description: "Uploads text to https://hastebin.com",
         },
         changelog: [
-            {"title": "Release", "items":[
-                "Uploads text to https://hastebin.com",
-                "If there is no message content, button doesn't appear (as there isn't anything to upload)"
+            {"title": "Update", "items":[
+                "Added the upload button to the text area when typing a message"
             ]}
         ]
         
@@ -68,9 +67,39 @@
             }
 
             patch() {
+                const slate = WebpackModules.getModule(m => m?.default?.displayName === "SlateTextAreaContextMenu")
+
+                Patcher.after(slate, "default", (_, args, component) => {
+                    let props = args[0]
+                    let target = props.target
+                    let text = target.textContent
+
+                    let item = DCM.buildMenuItem({
+                        label: "Create Hastebin",
+                        type: "text",
+                        action: () => {
+                            request.post({
+                                url:     'https://hastebin.com/documents',
+                                body:    text
+                            }, (error, _response, body) => {
+                                let data = JSON.parse(body)
+                                if (error || !data.key) return Toasts.error("There was an issue getting the Hastebin link from the message content")
+                                BdApi.alert("Hastebin Link", "https://hastebin.com/"+data.key)
+                            });
+                            
+                        }
+                    })
+                    component.props.children.push(item)
+
+                })
+
                 const item = WebpackModules.getModule(m => m?.default?.displayName === "MessageContextMenu")
 
                 Patcher.after(item, "default", (_, args, component) => {
+
+                    console.log(window.getSelection())
+
+
                     let props = args[0]
                     let message = props.message
                     if (message.content) {
