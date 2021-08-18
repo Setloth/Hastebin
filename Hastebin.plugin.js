@@ -84,7 +84,12 @@
                             }, (error, _response, body) => {
                                 let data = JSON.parse(body)
                                 if (error || !data.key) return Toasts.error("There was an issue getting the Hastebin link from the message content")
-                                BdApi.alert("Hastebin Link", "https://hastebin.com/"+data.key)
+                                navigator.clipboard.writeText("https://haste.devv.codes/"+data.key) // copy to clipboard
+                                    new Notification("New Hastebin", {
+									silent: false,
+									body: "Hastebin url copied to clipboard.",
+                                    icon: "https://progsoft.net/images/hastebin-icon-b45e3f5695d3f577b2630648bd00584195822e3d.png"
+								}); // sent notify
                             });
                             
                         }
@@ -113,7 +118,12 @@
                                 }, (error, _response, body) => {
                                     let data = JSON.parse(body)
                                     if (error || !data.key) return Toasts.error("There was an issue getting the Hastebin link from the message content")
-                                    BdApi.alert("Hastebin Link", "https://hastebin.com/"+data.key)
+                                    navigator.clipboard.writeText("https://haste.devv.codes/"+data.key) // copy to clipboard
+                                    new Notification("New Hastebin", {
+									silent: false,
+									body: "Hastebin url copied to clipboard.",
+                                    icon: "https://progsoft.net/images/hastebin-icon-b45e3f5695d3f577b2630648bd00584195822e3d.png"
+								}); // sent notify
                                 });
                                 
                             }
