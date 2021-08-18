@@ -84,7 +84,7 @@
                             }, (error, _response, body) => {
                                 let data = JSON.parse(body)
                                 if (error || !data.key) return Toasts.error("There was an issue getting the Hastebin link from the message content")
-                                navigator.clipboard.writeText("https://haste.devv.codes/"+data.key) // copy to clipboard
+                                navigator.clipboard.writeText("https://hastebin.com/"+data.key) // copy to clipboard
                                     new Notification("New Hastebin", {
 									silent: false,
 									body: "Hastebin url copied to clipboard.",
@@ -118,7 +118,7 @@
                                 }, (error, _response, body) => {
                                     let data = JSON.parse(body)
                                     if (error || !data.key) return Toasts.error("There was an issue getting the Hastebin link from the message content")
-                                    navigator.clipboard.writeText("https://haste.devv.codes/"+data.key) // copy to clipboard
+                                    navigator.clipboard.writeText("https://hastebin.com/"+data.key) // copy to clipboard
                                     new Notification("New Hastebin", {
 									silent: false,
 									body: "Hastebin url copied to clipboard.",
