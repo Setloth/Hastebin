@@ -79,7 +79,7 @@
                         type: "text",
                         action: () => {
                             request.post({
-                                url:     'https://hastebin.com/documents',
+                                url:     'https://www.toptal.com/developers/hastebin/documents',
                                 body:    text
                             }, (error, _response, body) => {
                                 let data = JSON.parse(body)
