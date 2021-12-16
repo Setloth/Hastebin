@@ -1,7 +1,7 @@
 /**
  * @name Hastebin
  * @author CT-1409
- * @version 1.0.1
+ * @version 2.0.0
  */
 
     const request = require("request")
