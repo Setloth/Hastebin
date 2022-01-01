@@ -14,7 +14,7 @@ info: {
     name: "Hastebin",
     authors: [
 	{
-	    name: "CT-1409",
+	    name: "Echology",
 	    discord_id: "272875632088842240",
 	}
     ],
