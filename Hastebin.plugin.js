@@ -1,6 +1,6 @@
 /**
  * @name Hastebin
- * @author CT-1409
+ * @author Echology
  * @version 2.0.0
  */
 
