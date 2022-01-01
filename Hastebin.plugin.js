@@ -1,7 +1,7 @@
 /**
  * @name Hastebin
  * @author Echology
- * @version 2.0.0
+ * @version 2.0.1
  */
 
 const request = require("request")
@@ -18,7 +18,7 @@ info: {
 	    discord_id: "272875632088842240",
 	}
     ],
-    version: "2.0.0",
+    version: "2.0.1",
     description: "Uploads text to https://hastebin.com",
 },
 changelog: [
