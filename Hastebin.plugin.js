@@ -1,7 +1,7 @@
 /**
  * @name Hastebin
  * @author Echology
- * @version 2.0.1
+ * @version 3.0.0
  */
 
 const request = require("request")
@@ -10,138 +10,147 @@ const fs = require("fs")
 const path = require("path")
 
 const config = {
-info: {
-    name: "Hastebin",
-    authors: [
-	{
-	    name: "Echology",
-	    discord_id: "272875632088842240",
-	}
+    info: {
+        name: "Hastebin",
+        authors: [
+            {
+                name: "Echology",
+                discord_id: "272875632088842240",
+            },
+        ],
+        version: "3.0.0",
+        description: "Uploads text to https://hastebin.com",
+    },
+    changelog: [
+        {
+            title: "Discord Update",
+            items: ["Fixed plugin to work with the new updates :)"],
+        },
     ],
-    version: "2.0.1",
-    description: "Uploads text to https://hastebin.com",
-},
-changelog: [
-    {"title": "Update", "items":[
-	"Updated send url to account for new Hastebin"
-    ]}
-]
-
-};
-
-module.exports = !global.ZeresPluginLibrary ? class {
-
-constructor() {
-    this._config = config;
 }
 
-load() {
-    BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
-	confirmText: "Download Now",
-	cancelText: "Cancel",
-	onConfirm: () => {
-	    request.get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, _response, body) => {
-		if (error) return electron.shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
-		await new Promise(r => fs.writeFile(path.join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
-	    });
-	}
-    });
-}
+module.exports = !global.ZeresPluginLibrary
+    ? class {
+          constructor() {
+              this._config = config
+          }
 
-start() { }
+          load() {
+              BdApi.showConfirmationModal(
+                  "Library Missing",
+                  `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`,
+                  {
+                      confirmText: "Download Now",
+                      cancelText: "Cancel",
+                      onConfirm: () => {
+                          request.get(
+                              "https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js",
+                              async (error, _response, body) => {
+                                  if (error)
+                                      return electron.shell.openExternal(
+                                          "https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js"
+                                      )
+                                  await new Promise((r) =>
+                                      fs.writeFile(
+                                          path.join(
+                                              BdApi.Plugins.folder,
+                                              "0PluginLibrary.plugin.js"
+                                          ),
+                                          body,
+                                          r
+                                      )
+                                  )
+                              }
+                          )
+                      },
+                  }
+              )
+          }
 
-stop() { }
-} : (([Plugin, Library]) => {
+          start() {}
 
-const { Patcher, Toasts, WebpackModules, DCM } = Library;
+          stop() {}
+      }
+    : (([Plugin, Library]) => {
+          const { Patcher, Toasts, WebpackModules, ContextMenu: DCM } = Library
+          const { copy } = WebpackModules.getByProps("copy", "cut", "close")
+          return class Hastebin extends Plugin {
+              constructor() {
+                  super()
+              }
 
-const { React } = BdApi
-return class Hastebin extends Plugin {
-    constructor() {
-	super();
-    }
+              async onStart() {
+                  this.patcher()
+              }
 
-    async onStart() {
-	this.patch()
+              patcher() {
+                  const patch = (_, [props], component) => {
+                      const { children } = component.props
+                      const { content } = props.message
+                      children.unshift(
+                          DCM.buildMenuItem({
+                              label: "Create Hastebin",
+                              type: "text",
+                              action: () => {
+                                  request.post(
+                                      {
+                                          url: "https://www.toptal.com/developers/hastebin/documents",
+                                          body: content,
+                                      },
+                                      (error, _response, body) => {
+                                          let data = JSON.parse(body)
+                                          if (error || !data.key)
+                                              return BdApi.showNotice(
+                                                  "Error creating Hastebin link",
+                                                  {
+                                                      type: "error",
+                                                      timeout: 5e3,
+                                                  }
+                                              )
+                                          copy(
+                                              "https://hastebin.com/" + data.key
+                                          )
+                                          new Notification("New Hastebin", {
+                                              silent: false,
+                                              body: "Hastebin url copied to clipboard.",
+                                              icon: "https://progsoft.net/images/hastebin-icon-b45e3f5695d3f577b2630648bd00584195822e3d.png",
+                                          })
+                                          BdApi.showNotice("Hastebin Created", {
+                                              type: "info",
+                                              buttons: [
+                                                  {
+                                                      label: "Open",
+                                                      onClick: () => {
+                                                          window.open(
+                                                              "https://hastebin.com/" +
+                                                                  data.key,
+                                                              "_blank"
+                                                          )
+                                                      },
+                                                  },
+                                              ],
+                                              timeout: 10e3,
+                                          })
+                                      }
+                                  )
+                              },
+                          })
+                      )
+                  }
 
-    }
+                  DCM.getDiscordMenu(
+                      (m) => m?.displayName == "MessageContextMenu"
+                  ).then((m) => {
+                      console.log(m)
+                      Patcher.after(m, "default", patch)
+                      DCM.forceUpdateMenus()
+                  })
+              }
 
-    patch() {
-	const slate = WebpackModules.getModule(m => m?.default?.displayName === "SlateTextAreaContextMenu")
+              onLoad() {}
 
-	Patcher.after(slate, "default", (_, args, component) => {
-	    let props = args[0]
-	    let target = props.target
-	    let text = target.textContent
-
-	    let item = DCM.buildMenuItem({
-		label: "Create Hastebin",
-		type: "text",
-		action: () => {
-		    request.post({
-			url:     'https://www.toptal.com/developers/hastebin/documents',
-			body:    text
-		    }, (error, _response, body) => {
-			let data = JSON.parse(body)
-			if (error || !data.key) return Toasts.error("There was an issue getting the Hastebin link from the message content")
-			navigator.clipboard.writeText("https://hastebin.com/"+data.key) 
-			    new Notification("New Hastebin", {
-								silent: false,
-								body: "Hastebin url copied to clipboard.",
-			    icon: "https://progsoft.net/images/hastebin-icon-b45e3f5695d3f577b2630648bd00584195822e3d.png"
-							}); 
-		    });
-
-		}
-	    })
-	    component.props.children.push(item)
-
-	})
-
-	const item = WebpackModules.getModule(m => m?.default?.displayName === "MessageContextMenu")
-
-	Patcher.after(item, "default", (_, args, component) => {
-
-	    console.log(window.getSelection())
-
-
-	    let props = args[0]
-	    let message = props.message
-	    if (message.content) {
-		let item = DCM.buildMenuItem({
-		    label: "Create Hastebin",
-		    type: "text",
-		    action: () => {
-			request.post({
-			    url:     'https://hastebin.com/documents',
-			    body:    message.content
-			}, (error, _response, body) => {
-			    let data = JSON.parse(body)
-			    if (error || !data.key) return Toasts.error("There was an issue getting the Hastebin link from the message content")
-			    navigator.clipboard.writeText("https://hastebin.com/"+data.key) // copy to clipboard
-			    new Notification("New Hastebin", {
-								silent: false,
-								body: "Hastebin url copied to clipboard.",
-			    icon: "https://progsoft.net/images/hastebin-icon-b45e3f5695d3f577b2630648bd00584195822e3d.png"
-							}); // sent notify
-			});
-
-		    }
-		})
-
-		component.props.children.push(item)
-	    }
-
-	})
-
-    }
-
-    onLoad() {
-    }
-
-    onStop() {
-	Patcher.unpatchAll();
-    }
-
-}
-})(global.ZeresPluginLibrary.buildPlugin(config));
+              onStop() {
+                  Patcher.unpatchAll()
+              }
+          }
+      })(global.ZeresPluginLibrary.buildPlugin(config))
