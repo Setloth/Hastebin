@@ -1,7 +1,7 @@
 /**
  * @name Hastebin
  * @author Echology
- * @version 3.0.0
+ * @version 4.0.0
  */
 
 const request = require("request")
@@ -18,13 +18,13 @@ const config = {
                 discord_id: "272875632088842240",
             },
         ],
-        version: "3.0.0",
+        version: "4.0.0",
         description: "Uploads text to https://hastebin.com",
     },
     changelog: [
         {
-            title: "Discord Update",
-            items: ["Fixed plugin to work with the new updates :)"],
+            title: "BD Update",
+            items: ["Updated plugin to follow new BD Update"],
         },
     ],
 }
@@ -72,8 +72,10 @@ module.exports = !global.ZeresPluginLibrary
           stop() {}
       }
     : (([Plugin, Library]) => {
-          const { Patcher, Toasts, WebpackModules, ContextMenu: DCM } = Library
-          const { copy } = WebpackModules.getByProps("copy", "cut", "close")
+          const { getModule, Filters } = BdApi.Webpack
+          const getByProps = (...strs) => getModule(Filters.byProps(...strs))
+          const { Patcher, ContextMenu: DCM } = Library
+          const { copy } = getByProps("copy", "cut", "close")
           return class Hastebin extends Plugin {
               constructor() {
                   super()
